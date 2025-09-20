@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Your Name</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-name">Portfolio</div>
+            <div class="loading-subtitle">My Creative Work</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Your Name</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="portfolio.html" class="active">Portfolio</a></li>
+                <li><a href="skills.html">Skills</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" style="height: 60vh; margin-top: 80px;">
+        <div class="hero-content">
+            <h1>My Portfolio</h1>
+            <p>Showcasing my passion for creating beautiful, functional web experiences</p>
+        </div>
+    </section>
+
+    <!-- Portfolio Filter -->
+    <section id="portfolio-filter">
+        <div class="portfolio-controls animate-on-scroll">
+            <button class="portfolio-btn active" onclick="filterProjects('all')">All Projects</button>
+            <button class="portfolio-btn" onclick="filterProjects('web')">Web Apps</button>
+            <button class="portfolio-btn" onclick="filterProjects('mobile')">Mobile</button>
+            <button class="portfolio-btn" onclick="filterProjects('design')">Design</button>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio">
+        <div class="portfolio-grid" id="portfolioGrid">
+            <!-- Portfolio items will be populated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Project Details Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="projectTitle">Project Title</h2>
+                <span class="close" onclick="closeProjectModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="projectImageContainer">
+                    <img id="projectImage" src="" alt="Project Image"
+                        style="width: 100%; border-radius: 8px; margin-bottom: 2rem;">
+                </div>
+                <div id="projectDescription"></div>
+                <div id="projectTechnologies" style="margin: 2rem 0;"></div>
+                <div id="projectLinks" style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                    <!-- Project links will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+
+    <script src="js/main.js"></script>
+    <script src="js/portfolio.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Write a Blog Post</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="write-blog.html">Write Blog</a></li>
+        </ul>
+    </nav>
+    <main>
+        <form id="blogForm">
+            <input type="text" id="title" placeholder="Title" required><br>
+            <textarea id="content" placeholder="Content" required></textarea><br>
+            <button type="submit">Publish</button>
+        </form>
+        <div id="message"></div>
+    </main>
+    <script src="write-blog.js"></script>
+</body>
+
+</html>

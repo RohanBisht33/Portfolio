@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Portfolio & Blog</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --text-light: #f8f9fa;
+            --text-dark: #2d3748;
+            --bg-light: #ffffff;
+            --bg-dark: #1a202c;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .loading-name {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.5s forwards;
+        }
+
+        .loading-subtitle {
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1s forwards;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transform: translateY(-100%);
+            animation: slideDown 1s ease 3s forwards;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        @keyframes slideDown {
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: var(--gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--text-light);
+            opacity: 0;
+            animation: fadeIn 1s ease 3s forwards;
+        }
+
+        .hero-content h1 {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 3.5s forwards;
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 4s forwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 1s ease 4.5s forwards;
+        }
+
+        .cta-button:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Sections */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Portfolio Section */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .portfolio-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .portfolio-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .portfolio-content {
+            padding: 2rem;
+        }
+
+        .portfolio-content h3 {
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        /* Skills Section */
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .skill-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .skill-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .skill-icon {
+            font-size: 3rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        /* Blog Section */
+        .blog-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .blog-btn {
+            padding: 0.8rem 1.5rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .blog-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .blog-post {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .blog-content {
+            padding: 2rem;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .blog-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .blog-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideInDown 0.3s ease;
+        }
+
+        .modal-header {
+            background: var(--gradient);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .comment {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-date {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .blog-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Animations on scroll */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-name">Your Name</div>
+            <div class="loading-subtitle">Portfolio & Blog</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Your Name</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Your Name</h1>
+            <p>Full Stack Developer & Creative Writer</p>
+            <a href="#portfolio" class="cta-button">View My Work</a>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio">
+        <h2 class="section-title animate-on-scroll">My Portfolio</h2>
+        <div class="portfolio-grid" id="portfolioGrid">
+            <!-- Portfolio items will be populated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills">
+        <h2 class="section-title animate-on-scroll">Skills & Expertise</h2>
+        <div class="skills-container animate-on-scroll">
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fab fa-js-square"></i></div>
+                <h3>JavaScript</h3>
+                <p>Modern ES6+ JavaScript, DOM manipulation, and async programming</p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fab fa-html5"></i></div>
+                <h3>HTML & CSS</h3>
+                <p>Semantic HTML5, CSS3, Flexbox, Grid, and responsive design</p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fab fa-node-js"></i></div>
+                <h3>Node.js</h3>
+                <p>Backend development with Express.js and REST APIs</p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fas fa-database"></i></div>
+                <h3>Databases</h3>
+                <p>MongoDB, MySQL, and database design principles</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog">
+        <h2 class="section-title animate-on-scroll">My Blog</h2>
+        <div class="blog-controls animate-on-scroll">
+            <div>
+                <button class="blog-btn" onclick="showAllPosts()">All Posts</button>
+                <button class="blog-btn" onclick="showFeaturedPosts()">Featured</button>
+                <button class="blog-btn" onclick="showLatestPosts()">Latest</button>
+            </div>
+            <button class="blog-btn" onclick="openCreatePostModal()">
+                <i class="fas fa-plus"></i> New Post
+            </button>
+        </div>
+        <div class="blog-grid" id="blogGrid">
+            <!-- Blog posts will be populated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title animate-on-scroll">Get In Touch</h2>
+        <div class="animate-on-scroll" style="text-align: center;">
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">Let's work together on something amazing!</p>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="mailto:your.email@example.com" class="cta-button"
+                    style="background: var(--gradient); color: white;">
+                    <i class="fas fa-envelope"></i> Email Me
+                </a>
+                <a href="https://linkedin.com/in/yourprofile" class="cta-button"
+                    style="background: var(--gradient); color: white;">
+                    <i class="fab fa-linkedin"></i> LinkedIn
+                </a>
+                <a href="https://github.com/yourusername" class="cta-button"
+                    style="background: var(--gradient); color: white;">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Create Post Modal -->
+    <div id="createPostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Blog Post</h2>
+                <span class="close" onclick="closeCreatePostModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="createPostForm">
+                    <div class="form-group">
+                        <label for="postTitle">Title</label>
+                        <input type="text" id="postTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postContent">Content</label>
+                        <textarea id="postContent" name="content" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="postFeatured" name="featured"> Featured Post
+                        </label>
+                    </div>
+                    <button type="submit" class="blog-btn">Publish Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Post Modal -->
+    <div id="viewPostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="viewPostTitle">Post Title</h2>
+                <span class="close" onclick="closeViewPostModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="blog-meta">
+                    <span id="viewPostDate">Date</span>
+                    <div class="blog-stats">
+                        <span><i class="fas fa-heart"></i> <span id="viewPostLikes">0</span></span>
+                        <span><i class="fas fa-comment"></i> <span id="viewPostComments">0</span></span>
+                    </div>
+                </div>
+                <div id="viewPostContent">Post content...</div>
+
+                <div style="margin: 2rem 0; text-align: center;">
+                    <button class="blog-btn" onclick="toggleLike()" id="likeBtn">
+                        <i class="fas fa-heart"></i> Like
+                    </button>
+                </div>
+
+                <div class="comments-section">
+                    <h3>Comments</h3>
+                    <div class="form-group">
+                        <input type="text" id="commentAuthor" placeholder="Your name" style="margin-bottom: 1rem;">
+                        <textarea id="commentText" placeholder="Write a comment..."></textarea>
+                        <button class="blog-btn" onclick="addComment()">Add Comment</button>
+                    </div>
+                    <div id="commentsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let blogPosts = [];
+        let currentPost = null;
+        let portfolioItems = [
+            {
+                title: "E-commerce Website",
+                description: "Full-stack e-commerce solution with payment integration",
+                image: "https://via.placeholder.com/400x200/667eea/ffffff?text=E-commerce+Site",
+                tech: ["HTML", "CSS", "JavaScript", "Node.js"]
+            },
+            {
+                title: "Task Management App",
+                description: "Responsive task manager with drag-and-drop functionality",
+                image: "https://via.placeholder.com/400x200/764ba2/ffffff?text=Task+Manager",
+                tech: ["JavaScript", "Local Storage", "CSS Grid"]
+            },
+            {
+                title: "Weather Dashboard",
+                description: "Real-time weather app with location-based forecasts",
+                image: "https://via.placeholder.com/400x200/f093fb/ffffff?text=Weather+App",
+                tech: ["API Integration", "JavaScript", "Responsive Design"]
+            }
+        ];
+
+        // Initialize the website
+        window.addEventListener('load', function () {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 1000);
+            }, 2500);
+
+            initializePortfolio();
+            initializeBlog();
+            setupScrollAnimations();
+            setupSmoothScrolling();
+        });
+
+        // Initialize Portfolio
+        function initializePortfolio() {
+            const portfolioGrid = document.getElementById('portfolioGrid');
+            portfolioItems.forEach((item, index) => {
+                const portfolioItem = document.createElement('div');
+                portfolioItem.className = 'portfolio-item animate-on-scroll';
+                portfolioItem.style.animationDelay = `${index * 0.2}s`;
+
+                portfolioItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}">
+                    <div class="portfolio-content">
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                        <div style="margin-top: 1rem;">
+                            ${item.tech.map(tech => `<span style="background: var(--gradient); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem; display: inline-block; margin-bottom: 0.5rem;">${tech}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                portfolioGrid.appendChild(portfolioItem);
+            });
+        }
+
+        // Initialize Blog
+        function initializeBlog() {
+            // Sample blog posts
+            blogPosts = [
+                {
+                    id: 1,
+                    title: "Getting Started with Modern JavaScript",
+                    content: "JavaScript has evolved tremendously over the years. In this post, I'll cover the essential ES6+ features that every developer should know...",
+                    date: new Date().toLocaleDateString(),
+                    featured: true,
+                    likes: 15,
+                    comments: []
+                },
+                {
+                    id: 2,
+                    title: "Building Responsive Web Applications",
+                    content: "Creating responsive designs is crucial in today's multi-device world. Here are the best practices I've learned...",
+                    date: new Date(Date.now() - 86400000).toLocaleDateString(),
+                    featured: false,
+                    likes: 8,
+                    comments: []
+                },
+                {
+                    id: 3,
+                    title: "The Future of Web Development",
+                    content: "Web development is constantly evolving. Let's explore the trends that will shape our industry in the coming years...",
+                    date: new Date(Date.now() - 172800000).toLocaleDateString(),
+                    featured: true,
+                    likes: 23,
+                    comments: []
+                }
+            ];
+            renderBlogPosts();
+        }
+
+        // Render blog posts
+        function renderBlogPosts(posts = blogPosts) {
+            const blogGrid = document.getElementById('blogGrid');
+            blogGrid.innerHTML = '';
+
+            posts.forEach((post, index) => {
+                const blogPost = document.createElement('div');
+                blogPost.className = 'blog-post animate-on-scroll';
+                blogPost.style.animationDelay = `${index * 0.1}s`;
+
+                blogPost.innerHTML = `
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span>${post.date}</span>
+                            <div class="blog-stats">
+                                <span><i class="fas fa-heart"></i> ${post.likes}</span>
+                                <span><i class="fas fa-comment"></i> ${post.comments.length}</span>
+                            </div>
+                        </div>
+                        <h3>${post.title}</h3>
+                        <p>${post.content.substring(0, 150)}...</p>
+                        ${post.featured ? '<span style="background: var(--gradient-accent); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Featured</span>' : ''}
+                        <div style="margin-top: 1rem;">
+                            <button class="blog-btn" onclick="openPost(${post.id})">Read More</button>
+                        </div>
+                    </div>
+                `;
+                blogGrid.appendChild(blogPost);
+            });
+
+            // Re-trigger animations
+            setupScrollAnimations();
+        }
+
+        // Blog filter functions
+        function showAllPosts() {
+            renderBlogPosts();
+        }
+
+        function showFeaturedPosts() {
+            const featured = blogPosts.filter(post => post.featured);
+            renderBlogPosts(featured);
+        }
+
+        function showLatestPosts() {
+            const latest = [...blogPosts].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+            renderBlogPosts(latest);
+        }
+
+        // Modal functions
+        function openCreatePostModal() {
+            document.getElementById('createPostModal').style.display = 'block';
+        }
+
+        function closeCreatePostModal() {
+            document.getElementById('createPostModal').style.display = 'none';
+            document.getElementById('createPostForm').reset();
+        }
+
+        function openPost(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            currentPost = post;
+            document.getElementById('viewPostTitle').textContent = post.title;
+            document.getElementById('viewPostDate').textContent = post.date;
+            document.getElementById('viewPostLikes').textContent = post.likes;
+            document.getElementById('viewPostComments').textContent = post.comments.length;
+            document.getElementById('viewPostContent').innerHTML = post.content.replace(/\n/g, '<br>');
+
+            renderComments(post.comments);
+            document.getElementById('viewPostModal').style.display = 'block';
+        }
+
+        function closeViewPostModal() {
+            document.getElementById('viewPostModal').style.display = 'none';
+            currentPost = null;
+        }
+
+        // Create new post
+        document.getElementById('createPostForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const featured = document.getElementById('postFeatured').checked;
+
+            const newPost = {
+                id: blogPosts.length + 1,
+                title,
+                content,
+                date: new Date().toLocaleDateString(),
+                featured,
+                likes: 0,
+                comments: []
+            };
+
+            blogPosts.unshift(newPost);
+            renderBlogPosts();
+            closeCreatePostModal();
+        });
+
+        // Like functionality
+        function toggleLike() {
+            if (!currentPost) return;
+
+            currentPost.likes++;
+            document.getElementById('viewPostLikes').textContent = currentPost.likes;
+
+            // Update the blog grid
+            renderBlogPosts();
+        }
+
+        // Comment functionality
+        function addComment() {
+            if (!currentPost) return;
+
+            const author = document.getElementById('commentAuthor').value;
+            const text = document.getElementById('commentText').value;
+
+            if (!author || !text) return;
+
+            const comment = {
+                author,
+                text,
+                date: new Date().toLocaleDateString()
+            };
+
+            currentPost.comments.push(comment);
+            renderComments(currentPost.comments);
+            document.getElementById('viewPostComments').textContent = currentPost.comments.length;
+
+            // Clear form
+            document.getElementById('commentAuthor').value = '';
+            document.getElementById('commentText').value = '';
+
+            // Update the blog grid
+            renderBlogPosts();
+        }
+
+        function renderComments(comments) {
+            const container = document.getElementById('commentsContainer');
+            container.innerHTML = '';
+
+            comments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                commentDiv.innerHTML = `
+                    <div class="comment-author">
+                        ${comment.author}
+                        <span class="comment-date">${comment.date}</span>
+                    </div>
+                    <p>${comment.text}</p>
+                `;
+                container.appendChild(commentDiv);
+            });
+        }
+
+        // Scroll animations
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Animate skill items with delay
+            document.querySelectorAll('.skill-item').forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.2}s`;
+            });
+        }
+
+        // Smooth scrolling for navigation
+        function setupSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function (event) {
+            const createModal = document.getElementById('createPostModal');
+            const viewModal = document.getElementById('viewPostModal');
+
+            if (event.target === createModal) {
+                closeCreatePostModal();
+            }
+            if (event.target === viewModal) {
+                closeViewPostModal();
+            }
+        });
+
+        // Parallax effect for hero section
+        window.addEventListener('scroll', function () {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Add floating animation to CTA buttons
+        document.querySelectorAll('.cta-button, .blog-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function () {
+                this.style.animation = 'float 2s ease-in-out infinite';
+            });
+
+            btn.addEventListener('mouseleave', function () {
+                this.style.animation = '';
+            });
+        });
+
+        // Add custom cursor effect
+        document.addEventListener('mousemove', function (e) {
+            const cursor = document.querySelector('.custom-cursor');
+            if (cursor) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            }
+        });
+
+        // Typewriter effect for hero subtitle
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // Initialize typewriter effect after loading
+        setTimeout(() => {
+            const heroSubtitle = document.querySelector('.hero-content p');
+            if (heroSubtitle) {
+                const originalText = heroSubtitle.textContent;
+                typeWriter(heroSubtitle, originalText, 100);
+            }
+        }, 4000);
+
+        // Add search functionality for blog posts
+        function searchPosts(query) {
+            const filtered = blogPosts.filter(post =>
+                post.title.toLowerCase().includes(query.toLowerCase()) ||
+                post.content.toLowerCase().includes(query.toLowerCase())
+            );
+            renderBlogPosts(filtered);
+        }
+
+        // Add dynamic greeting based on time
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Hello";
+
+            if (hour < 12) greeting = "Good Morning";
+            else if (hour < 18) greeting = "Good Afternoon";
+            else greeting = "Good Evening";
+
+            const heroTitle = document.querySelector('.hero-content h1');
+            if (heroTitle && !heroTitle.textContent.includes('Your Name')) {
+                heroTitle.innerHTML = `${greeting},<br>I'm Your Name`;
+            }
+        }
+
+        setTimeout(updateGreeting, 5000);
+    </script>
+
+    <!-- Additional CSS for animations -->
+    <style>
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            opacity: 0.7;
+            transition: transform 0.1s ease;
+        }
+
+        /* Enhanced hover effects */
+        .portfolio-item:hover .portfolio-content h3 {
+            color: var(--primary);
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+        }
+
+        .skill-item:hover .skill-icon {
+            transform: scale(1.2) rotate(10deg);
+            transition: all 0.3s ease;
+        }
+
+        /* Loading animation for blog posts */
+        .blog-loading {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .blog-loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Glitch effect for name */
+        .glitch {
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-1 0.5s infinite;
+            color: #ff00ff;
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-2 0.5s infinite;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+
+            0%,
+            100% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-2px, 2px);
+            }
+
+            40% {
+                transform: translate(-2px, -2px);
+            }
+
+            60% {
+                transform: translate(2px, 2px);
+            }
+
+            80% {
+                transform: translate(2px, -2px);
+            }
+        }
+
+        @keyframes glitch-1 {
+
+            0%,
+            100% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-1px, 1px);
+            }
+
+            40% {
+                transform: translate(-1px, -1px);
+            }
+
+            60% {
+                transform: translate(1px, 1px);
+            }
+
+            80% {
+                transform: translate(1px, -1px);
+            }
+        }
+
+        @keyframes glitch-2 {
+
+            0%,
+            100% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(1px, -1px);
+            }
+
+            40% {
+                transform: translate(1px, 1px);
+            }
+
+            60% {
+                transform: translate(-1px, -1px);
+            }
+
+            80% {
+                transform: translate(-1px, 1px);
+            }
+        }
+
+        /* Particle animation background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: float-particle 6s infinite linear;
+            opacity: 0.7;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.7;
+            }
+
+            90% {
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: translateY(-10vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Gradient text animation */
+        .gradient-text {
+            background: linear-gradient(-45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Morphing shapes */
+        .morph-shape {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient);
+            border-radius: 50%;
+            animation: morph 4s ease-in-out infinite;
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        @keyframes morph {
+
+            0%,
+            100% {
+                border-radius: 50%;
+                transform: rotate(0deg);
+            }
+
+            25% {
+                border-radius: 25% 75% 75% 25%;
+                transform: rotate(90deg);
+            }
+
+            50% {
+                border-radius: 75% 25% 25% 75%;
+                transform: rotate(180deg);
+            }
+
+            75% {
+                border-radius: 25% 75% 25% 75%;
+                transform: rotate(270deg);
+            }
+        }
+    </style>
+
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Add particle generation script -->
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // Initialize particles after loading
+        setTimeout(createParticles, 3000);
+
+        // Add morphing shapes to sections
+        function addMorphingShapes() {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                for (let i = 0; i < 2; i++) {
+                    const shape = document.createElement('div');
+                    shape.className = 'morph-shape';
+                    shape.style.left = Math.random() * 80 + '%';
+                    shape.style.top = Math.random() * 80 + '%';
+                    shape.style.animationDelay = i * 2 + 's';
+                    section.style.position = 'relative';
+                    section.appendChild(shape);
+                }
+            });
+        }
+
+        setTimeout(addMorphingShapes, 4000);
+    </script>
+</body>
+
+</html>
