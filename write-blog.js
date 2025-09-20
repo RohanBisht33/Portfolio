@@ -280,4 +280,175 @@ function saveDraftSilently() {
             content,
             tags: document.getElementById('tags').value,
             featured: document.getElementById('featured').checked,
-            timestamp: Date.now
+            timestamp: Date.now()
+        };
+
+        try {
+            localStorage.setItem('blogDraft', JSON.stringify(draft));
+        } catch (error) {
+            console.error('Failed to save draft silently:', error);
+        }
+    }
+}
+
+function loadDraft() {
+    try {
+        const draft = localStorage.getItem('blogDraft');
+        if (draft) {
+            const parsedDraft = JSON.parse(draft);
+
+            // Check if draft is less than 24 hours old
+            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+            if (parsedDraft.timestamp > oneDayAgo) {
+                if (confirm('Found a recent draft. Would you like to restore it?')) {
+                    document.getElementById('title').value = parsedDraft.title || '';
+                    document.getElementById('content').value = parsedDraft.content || '';
+                    document.getElementById('tags').value = parsedDraft.tags || '';
+                    document.getElementById('featured').checked = parsedDraft.featured || false;
+
+                    // Update character count
+                    document.getElementById('charCount').textContent = parsedDraft.content.length;
+                }
+            } else {
+                // Remove old draft
+                localStorage.removeItem('blogDraft');
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load draft:', error);
+    }
+}
+
+function clearDraft() {
+    try {
+        localStorage.removeItem('blogDraft');
+    } catch (error) {
+        console.error('Failed to clear draft:', error);
+    }
+}
+
+// Text formatting functions for toolbar
+function formatText(command) {
+    const textarea = document.getElementById('content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+
+    if (!selectedText) {
+        showError('Please select text to format');
+        return;
+    }
+
+    let formattedText = '';
+    switch (command) {
+        case 'bold':
+            formattedText = `**${selectedText}**`;
+            break;
+        case 'italic':
+            formattedText = `*${selectedText}*`;
+            break;
+        case 'underline':
+            formattedText = `<u>${selectedText}</u>`;
+            break;
+    }
+
+    textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + formattedText.length, start + formattedText.length);
+
+    // Update character count
+    document.getElementById('charCount').textContent = textarea.value.length;
+}
+
+function insertList() {
+    const textarea = document.getElementById('content');
+    const start = textarea.selectionStart;
+    const listText = '\n- List item 1\n- List item 2\n- List item 3\n';
+
+    textarea.value = textarea.value.substring(0, start) + listText + textarea.value.substring(start);
+    textarea.focus();
+    textarea.setSelectionRange(start + listText.length, start + listText.length);
+
+    document.getElementById('charCount').textContent = textarea.value.length;
+}
+
+function insertLink() {
+    const textarea = document.getElementById('content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+
+    const linkText = selectedText || 'Link text';
+    const linkUrl = prompt('Enter the URL:');
+
+    if (linkUrl) {
+        const linkMarkdown = `[${linkText}](${linkUrl})`;
+        textarea.value = textarea.value.substring(0, start) + linkMarkdown + textarea.value.substring(end);
+        textarea.focus();
+        textarea.setSelectionRange(start + linkMarkdown.length, start + linkMarkdown.length);
+
+        document.getElementById('charCount').textContent = textarea.value.length;
+    }
+}
+
+function showError(message) {
+    showMessage(message, 'error');
+}
+
+function showSuccess(message) {
+    showMessage(message, 'success');
+}
+
+function showMessage(message, type) {
+    const messageContainer = document.getElementById('messageContainer');
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}-message`;
+
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+    messageDiv.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="close-btn">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    messageContainer.appendChild(messageDiv);
+
+    // Auto remove after 5 seconds for errors, 3 seconds for success
+    const timeout = type === 'error' ? 5000 : 3000;
+    setTimeout(() => {
+        if (messageDiv.parentElement) {
+            messageDiv.remove();
+        }
+    }, timeout);
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', (event) => {
+    const modal = document.getElementById('previewModal');
+    if (event.target === modal) {
+        closePreview();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        closePreview();
+    }
+});
+
+// Warn user about unsaved changes
+window.addEventListener('beforeunload', (event) => {
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+
+    if ((title || content) && !isPublishing) {
+        event.preventDefault();
+        event.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return event.returnValue;
+    }
+});
