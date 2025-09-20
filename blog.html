@@ -3,22 +3,109 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Blog Feed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Rohan Bisht</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
+    <!-- Navigation -->
     <nav>
-        <!-- Same nav as index.html; Link to Write Blog page -->
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="write-blog.html">Write Blog</a></li>
-        </ul>
+        <div class="nav-container">
+            <div class="logo"><a href="/">Rohan Bisht</a></div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/projects">Projects</a></li>
+                <li><a href="/blog" class="active">Blog</a></li>
+                <li><a href="/write-blog">Write Blog</a></li>
+            </ul>
+        </div>
     </nav>
-    <main>
-        <div id="blogFeed"></div>
+
+    <!-- Blog Header -->
+    <section class="page-header">
+        <div class="header-content">
+            <h1>My Blog</h1>
+            <p>Thoughts, tutorials, and insights on web development</p>
+        </div>
+    </section>
+
+    <!-- Blog Controls -->
+    <section class="blog-controls-section">
+        <div class="container">
+            <div class="blog-controls">
+                <div class="filter-buttons">
+                    <button class="blog-btn active" onclick="filterBlogs('all')">All Posts</button>
+                    <button class="blog-btn" onclick="filterBlogs('featured')">Featured</button>
+                    <button class="blog-btn" onclick="filterBlogs('latest')">Latest</button>
+                </div>
+                <div class="blog-search">
+                    <input type="text" id="searchInput" placeholder="Search blogs..." onkeyup="searchBlogs()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <a href="/write-blog" class="blog-btn primary">
+                    <i class="fas fa-plus"></i> New Post
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Content -->
+    <main class="blog-main">
+        <div class="container">
+            <div id="blogLoading" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading blogs...</p>
+            </div>
+
+            <div id="blogFeed" class="blog-grid"></div>
+
+            <div id="noBlogsMessage" class="no-content" style="display: none;">
+                <i class="fas fa-blog"></i>
+                <h3>No blogs found</h3>
+                <p>Be the first to write a blog post!</p>
+                <a href="/write-blog" class="cta-button">Write Your First Post</a>
+            </div>
+        </div>
     </main>
+
+    <!-- Blog Post Modal -->
+    <div id="blogModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Blog Title</h2>
+                <span class="close" onclick="closeBlogModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="blog-meta">
+                    <div class="blog-info">
+                        <span><i class="fas fa-calendar"></i> <span id="modalDate">Date</span></span>
+                        <span><i class="fas fa-eye"></i> <span id="modalViews">0</span> views</span>
+                        <span><i class="fas fa-heart"></i> <span id="modalLikes">0</span> likes</span>
+                    </div>
+                    <button class="like-btn" onclick="likeBlog()">
+                        <i class="fas fa-heart"></i> Like
+                    </button>
+                </div>
+                <div id="modalImage" class="blog-image"></div>
+                <div id="modalContent" class="blog-content-full"></div>
+                <div id="modalTags" class="blog-tags"></div>
+
+                <!-- Comments Section -->
+                <div class="comments-section">
+                    <h3>Comments</h3>
+                    <div class="comment-form">
+                        <input type="text" id="commentAuthor" placeholder="Your name" required>
+                        <textarea id="commentContent" placeholder="Write a comment..." required></textarea>
+                        <button onclick="addComment()" class="blog-btn">Post Comment</button>
+                    </div>
+                    <div id="commentsContainer" class="comments-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="blog.js"></script>
 </body>
 
