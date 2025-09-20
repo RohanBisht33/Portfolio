@@ -3,26 +3,158 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Write a Blog Post</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Write Blog - Rohan Bisht</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
+    <!-- Navigation -->
     <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="write-blog.html">Write Blog</a></li>
-        </ul>
+        <div class="nav-container">
+            <div class="logo"><a href="/">Rohan Bisht</a></div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/projects">Projects</a></li>
+                <li><a href="/blog">Blog</a></li>
+                <li><a href="/write-blog" class="active">Write Blog</a></li>
+            </ul>
+        </div>
     </nav>
-    <main>
-        <form id="blogForm">
-            <input type="text" id="title" placeholder="Title" required><br>
-            <textarea id="content" placeholder="Content" required></textarea><br>
-            <button type="submit">Publish</button>
-        </form>
-        <div id="message"></div>
+
+    <!-- Write Blog Header -->
+    <section class="page-header">
+        <div class="header-content">
+            <h1>Write a Blog Post</h1>
+            <p>Share your thoughts, tutorials, and insights with the world</p>
+        </div>
+    </section>
+
+    <!-- Blog Form -->
+    <main class="form-main">
+        <div class="container">
+            <div class="form-container">
+                <form id="blogForm" class="blog-form" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-heading"></i> Blog Title
+                            </label>
+                            <input type="text" id="title" name="title" required
+                                placeholder="Enter an engaging title for your blog post">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="image">
+                                <i class="fas fa-image"></i> Featured Image (Optional)
+                            </label>
+                            <div class="file-upload">
+                                <input type="file" id="image" name="image" accept="image/*">
+                                <div class="file-upload-display">
+                                    <div id="imagePreview" class="image-preview" style="display: none;">
+                                        <img id="previewImg" src="" alt="Preview">
+                                        <button type="button" class="remove-image" onclick="removeImage()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div id="uploadPlaceholder" class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload an image or drag and drop</p>
+                                        <small>PNG, JPG, WEBP up to 5MB</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="content">
+                                <i class="fas fa-edit"></i> Blog Content
+                            </label>
+                            <div class="editor-toolbar">
+                                <button type="button" onclick="formatText('bold')" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" onclick="formatText('italic')" title="Italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" onclick="formatText('underline')" title="Underline">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <button type="button" onclick="insertList()" title="Bullet List">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" onclick="insertLink()" title="Insert Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
+                            <textarea id="content" name="content" required
+                                placeholder="Write your blog content here. Use the toolbar above for formatting or write in markdown format.&#10;&#10;Example:&#10;## Heading&#10;**Bold text**&#10;*Italic text*&#10;[Link text](https://example.com)&#10;&#10;- Bullet point 1&#10;- Bullet point 2"
+                                rows="15"></textarea>
+                            <div class="character-count">
+                                <span id="charCount">0</span> characters
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="tags">
+                                <i class="fas fa-tags"></i> Tags (Optional)
+                            </label>
+                            <input type="text" id="tags" name="tags"
+                                placeholder="e.g., javascript, web development, tutorial (comma-separated)">
+                            <small>Separate tags with commas</small>
+                        </div>
+                        <div class="form-group half">
+                            <label for="featured" class="checkbox-label">
+                                <input type="checkbox" id="featured" name="featured">
+                                <span class="checkmark"></span>
+                                <i class="fas fa-star"></i> Mark as Featured Post
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="previewBlog()">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="saveDraft()">
+                            <i class="fas fa-save"></i> Save Draft
+                        </button>
+                        <button type="submit" class="btn-primary" id="publishBtn">
+                            <i class="fas fa-paper-plane"></i> Publish Blog
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Preview Modal -->
+                <div id="previewModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-eye"></i> Blog Preview</h2>
+                            <span class="close" onclick="closePreview()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div id="previewContent" class="blog-preview"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button onclick="closePreview()" class="btn-secondary">Close Preview</button>
+                            <button onclick="publishFromPreview()" class="btn-primary">Publish Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer"></div>
+
     <script src="write-blog.js"></script>
 </body>
 
