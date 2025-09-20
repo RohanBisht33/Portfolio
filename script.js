@@ -440,15 +440,6 @@ document.querySelectorAll('.cta-button, .blog-btn').forEach(btn => {
     });
 });
 
-// Add custom cursor effect
-document.addEventListener('mousemove', function (e) {
-    const cursor = document.querySelector('.custom-cursor');
-    if (cursor) {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
-    }
-});
-
 // Typewriter effect for hero subtitle
 function typeWriter(element, text, speed = 50) {
     let i = 0;
