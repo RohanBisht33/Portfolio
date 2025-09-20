@@ -1616,3 +1616,91 @@ a:focus {
         border: 1px solid #ccc;
     }
 }
+/* Add these CSS rules to your styles.css to fix skills visibility */
+
+/* Ensure skills are visible by default */
+.skill-item {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: all 0.6s ease;
+}
+
+/* Override animation delays that might be causing issues */
+.skills-container .skill-item {
+    animation-delay: unset;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Enhanced skills section visibility */
+#skills {
+    opacity: 1;
+    visibility: visible;
+}
+
+.skills-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Make sure portfolio items are visible when loaded */
+.portfolio-item {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+/* Improved animation states */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Specific fix for skills that should always be visible */
+.skills-container.animate-on-scroll,
+.skill-item.animate-on-scroll {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Portfolio grid improvements */
+.portfolio-grid {
+    opacity: 1;
+}
+
+.portfolio-item img {
+    transition: opacity 0.3s ease;
+}
+
+/* Loading spinner for projects */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Hover effects for portfolio items */
+.portfolio-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.portfolio-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Ensure buttons in portfolio work properly */
+.portfolio-item button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

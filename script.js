@@ -30,15 +30,52 @@ window.addEventListener('load', function () {
         document.getElementById('loadingScreen').style.display = 'none';
     }
 
+    // Initialize content and animations
     initializePortfolio();
     initializeBlog();
+    initializeSkills();
     setupScrollAnimations();
     setupSmoothScrolling();
 });
 
+// Initialize Skills to make them visible
+function initializeSkills() {
+    // Make sure skills are visible immediately
+    const skillsSection = document.getElementById('skills');
+    const skillItems = document.querySelectorAll('.skill-item');
+
+    if (skillItems.length > 0) {
+        skillItems.forEach((item, index) => {
+            // Remove any existing animation delay and add proper classes
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+            item.classList.add('animate-on-scroll');
+
+            // Add a subtle stagger effect
+            setTimeout(() => {
+                item.classList.add('animated');
+            }, index * 50);
+        });
+    }
+
+    // Make section title visible
+    const skillsTitle = document.querySelector('#skills .section-title');
+    if (skillsTitle) {
+        skillsTitle.classList.add('animate-on-scroll', 'animated');
+    }
+}
+
 // Initialize Portfolio with real projects from API
 async function initializePortfolio() {
     const portfolioGrid = document.getElementById('portfolioGrid');
+
+    // Show loading state
+    portfolioGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">
+            <div style="width: 40px; height: 40px; border: 3px solid #f3f4f6; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <p>Loading projects...</p>
+        </div>
+    `;
 
     try {
         // Fetch featured projects for homepage
@@ -58,6 +95,9 @@ async function initializePortfolio() {
             }
         }
 
+        // Clear loading state
+        portfolioGrid.innerHTML = '';
+
         // Display projects or show message if none exist
         if (portfolioProjects.length === 0) {
             portfolioGrid.innerHTML = `
@@ -70,35 +110,49 @@ async function initializePortfolio() {
             return;
         }
 
+        // Create projects with immediate visibility
         portfolioProjects.forEach((project, index) => {
             const portfolioItem = document.createElement('div');
-            portfolioItem.className = 'portfolio-item animate-on-scroll';
-            portfolioItem.style.animationDelay = `${index * 0.2}s`;
+            portfolioItem.className = 'portfolio-item';
 
             const truncatedDescription = project.description.length > 100
                 ? project.description.substring(0, 100) + '...'
                 : project.description;
 
             portfolioItem.innerHTML = `
-                <img src="${project.image}" alt="${project.title}">
+                <img src="${project.image}" alt="${project.title}" onload="this.style.opacity='1';" style="opacity: 0; transition: opacity 0.3s ease;">
                 <div class="portfolio-content">
                     <h3>${project.title}</h3>
                     <p>${truncatedDescription}</p>
                     <div style="margin-top: 1rem;">
-                        ${project.technologies.slice(0, 4).map(tech =>
-                `<span style="background: var(--gradient); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem; display: inline-block; margin-bottom: 0.5rem;">${tech}</span>`
-            ).join('')}
-                        ${project.technologies.length > 4 ? `<span style="color: #64748b; font-size: 0.8rem;">+${project.technologies.length - 4} more</span>` : ''}
+                        ${project.technologies && project.technologies.length > 0 ?
+                    project.technologies.slice(0, 4).map(tech =>
+                        `<span style="background: var(--gradient); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem; display: inline-block; margin-bottom: 0.5rem;">${tech}</span>`
+                    ).join('') : ''
+                }
+                        ${project.technologies && project.technologies.length > 4 ? `<span style="color: #64748b; font-size: 0.8rem;">+${project.technologies.length - 4} more</span>` : ''}
                     </div>
-                    <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
-                        ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fab fa-github"></i> Code</a>` : ''}
-                        ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-external-link-alt"></i> Live Demo</a>` : ''}
-                        <button onclick="viewProjectDetails('${project._id}')" style="background: var(--gradient); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 15px; cursor: pointer; font-size: 0.8rem;">View Details</button>
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" style="color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.3rem;"><i class="fab fa-github"></i> Code</a>` : ''}
+                        ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" style="color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.3rem;"><i class="fas fa-external-link-alt"></i> Live</a>` : ''}
+                        <button onclick="viewProjectDetails('${project._id}')" style="background: var(--gradient); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 15px; cursor: pointer; font-size: 0.8rem; transition: transform 0.2s ease;">View Details</button>
                     </div>
                 </div>
             `;
+
+            // Add animation class after a slight delay for staggered effect
+            setTimeout(() => {
+                portfolioItem.classList.add('animate-on-scroll', 'animated');
+            }, index * 100);
+
             portfolioGrid.appendChild(portfolioItem);
         });
+
+        // Trigger scroll animations after all items are added
+        setTimeout(() => {
+            setupScrollAnimations();
+        }, 100);
+
     } catch (error) {
         console.error('Error loading projects:', error);
         portfolioGrid.innerHTML = `
@@ -106,6 +160,7 @@ async function initializePortfolio() {
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
                 <h3>Error loading projects</h3>
                 <p>There was an error loading the projects. Please try refreshing the page.</p>
+                <button onclick="window.location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer;">Retry</button>
             </div>
         `;
     }
@@ -296,16 +351,51 @@ function setupScrollAnimations() {
             }
         });
     }, {
-        threshold: 0.1
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     });
 
+    // Observe all elements that should animate
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
         observer.observe(el);
     });
 
-    // Animate skill items with delay
-    document.querySelectorAll('.skill-item').forEach((item, index) => {
-        item.style.animationDelay = `${index * 0.2}s`;
+    // Ensure skills are visible and animated properly
+    const skillsContainer = document.querySelector('.skills-container');
+    if (skillsContainer) {
+        skillsContainer.classList.add('animate-on-scroll');
+        observer.observe(skillsContainer);
+
+        // Also make individual skill items visible
+        document.querySelectorAll('.skill-item').forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+            item.classList.add('animate-on-scroll');
+            observer.observe(item);
+
+            // Force show skills immediately if they're already in viewport
+            const rect = item.getBoundingClientRect();
+            const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+            if (isInViewport) {
+                setTimeout(() => {
+                    item.classList.add('animated');
+                }, index * 100);
+            }
+        });
+    }
+
+    // Make sure section titles are animated
+    document.querySelectorAll('.section-title').forEach((title, index) => {
+        title.classList.add('animate-on-scroll');
+        observer.observe(title);
+
+        // Force show if already in viewport
+        const rect = title.getBoundingClientRect();
+        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        if (isInViewport) {
+            setTimeout(() => {
+                title.classList.add('animated');
+            }, 200);
+        }
     });
 }
 
