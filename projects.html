@@ -25,4 +25,78 @@
 
     <!-- Projects Header -->
     <section class="page-header">
-        <div class
+        <div class="header-content">
+            <h1>My Projects</h1>
+            <p>A showcase of my development work and creative solutions</p>
+        </div>
+    </section>
+
+    <!-- Projects Controls -->
+    <section class="projects-controls-section">
+        <div class="container">
+            <div class="projects-controls">
+                <div class="filter-buttons">
+                    <button class="blog-btn active" onclick="filterProjects('all')">All Projects</button>
+                    <button class="blog-btn" onclick="filterProjects('featured')">Featured</button>
+                    <button class="blog-btn" onclick="filterProjects('completed')">Completed</button>
+                    <button class="blog-btn" onclick="filterProjects('in-progress')">In Progress</button>
+                </div>
+                <a href="/add-project" class="blog-btn primary">
+                    <i class="fas fa-plus"></i> Add Project
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Content -->
+    <main class="projects-main">
+        <div class="container">
+            <div id="projectsLoading" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading projects...</p>
+            </div>
+
+            <div id="projectsFeed" class="projects-grid"></div>
+
+            <div id="noProjectsMessage" class="no-content" style="display: none;">
+                <i class="fas fa-code"></i>
+                <h3>No projects found</h3>
+                <p>Start building something amazing!</p>
+                <a href="/add-project" class="cta-button">Add Your First Project</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Project Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Project Title</h2>
+                <span class="close" onclick="closeProjectModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="project-meta">
+                    <div class="project-info">
+                        <span><i class="fas fa-calendar"></i> <span id="modalDate">Date</span></span>
+                        <span class="status-badge" id="modalStatus">Status</span>
+                    </div>
+                    <div class="project-links">
+                        <a id="modalGithub" href="#" target="_blank" class="project-link" style="display: none;">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                        <a id="modalLive" href="#" target="_blank" class="project-link" style="display: none;">
+                            <i class="fas fa-external-link-alt"></i> Live Demo
+                        </a>
+                    </div>
+                </div>
+                <div id="modalImage" class="project-image"></div>
+                <div id="modalDescription" class="project-description"></div>
+                <div id="modalTechnologies" class="project-technologies"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="projects.js"></script>
+</body>
+
+</html>
