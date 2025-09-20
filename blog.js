@@ -16,16 +16,42 @@ async function loadBlogs(filter = 'all') {
             url += '?limit=5';
         }
 
+        console.log('Fetching blogs from:', url);
         const response = await fetch(url);
+
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Failed to load blogs');
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
 
-        allBlogs = await response.json();
-        displayBlogs(allBlogs);
+        const responseText = await response.text();
+        console.log('Response text length:', responseText.length);
+
+        if (!responseText.trim()) {
+            console.log('Empty response received');
+            allBlogs = [];
+            displayBlogs([]);
+            return;
+        }
+
+        try {
+            allBlogs = JSON.parse(responseText);
+            console.log('Parsed blogs:', allBlogs.length, 'blogs found');
+            displayBlogs(allBlogs);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Response text was:', responseText);
+            throw new Error('Invalid JSON response from server');
+        }
+
     } catch (error) {
         console.error('Error loading blogs:', error);
-        showError('Failed to load blogs. Please try again later.');
+        showError('Failed to load blogs: ' + error.message);
+        allBlogs = [];
+        displayBlogs([]);
     } finally {
         showLoading(false);
     }
@@ -35,7 +61,7 @@ function displayBlogs(blogs) {
     const blogFeed = document.getElementById('blogFeed');
     const noBlogsMessage = document.getElementById('noBlogsMessage');
 
-    if (blogs.length === 0) {
+    if (!blogs || blogs.length === 0) {
         blogFeed.innerHTML = '';
         noBlogsMessage.style.display = 'block';
         return;
@@ -58,16 +84,16 @@ function createBlogCard(blog, index) {
     blogPost.className = 'blog-card animate-on-scroll';
     blogPost.style.animationDelay = `${index * 0.1}s`;
 
-    const truncatedContent = blog.content.length > 150
+    const truncatedContent = blog.content && blog.content.length > 150
         ? blog.content.substring(0, 150) + '...'
-        : blog.content;
+        : blog.content || '';
 
     const tagsHtml = blog.tags && blog.tags.length > 0
         ? `<div class="blog-tags">${blog.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>`
         : '';
 
     const imageHtml = blog.image
-        ? `<div class="blog-image"><img src="${blog.image}" alt="${blog.title}" loading="lazy"></div>`
+        ? `<div class="blog-image"><img src="${blog.image}" alt="${blog.title || 'Blog post'}" loading="lazy" onerror="this.style.display='none'"></div>`
         : '';
 
     blogPost.innerHTML = `
@@ -82,7 +108,7 @@ function createBlogCard(blog, index) {
                 </div>
                 ${blog.featured ? '<span class="featured-badge">Featured</span>' : ''}
             </div>
-            <h3 class="blog-title">${blog.title}</h3>
+            <h3 class="blog-title">${blog.title || 'Untitled'}</h3>
             <p class="blog-excerpt">${truncatedContent}</p>
             ${tagsHtml}
             <div class="blog-actions">
@@ -106,30 +132,44 @@ function createBlogCard(blog, index) {
 
 async function openBlogModal(blogId) {
     try {
+        console.log('Opening blog modal for ID:', blogId);
         const response = await fetch(`/api/blogs/${blogId}`);
+
         if (!response.ok) {
-            throw new Error('Failed to load blog');
+            const errorText = await response.text();
+            throw new Error(`Failed to load blog: ${response.status} - ${errorText}`);
         }
 
-        currentBlog = await response.json();
+        const responseText = await response.text();
+        if (!responseText.trim()) {
+            throw new Error('Empty response received');
+        }
+
+        currentBlog = JSON.parse(responseText);
+        console.log('Loaded blog:', currentBlog.title);
         displayBlogModal(currentBlog);
     } catch (error) {
         console.error('Error loading blog:', error);
-        showError('Failed to load blog post');
+        showError('Failed to load blog post: ' + error.message);
     }
 }
 
 function displayBlogModal(blog) {
-    document.getElementById('modalTitle').textContent = blog.title;
+    if (!blog) {
+        showError('Blog data is missing');
+        return;
+    }
+
+    document.getElementById('modalTitle').textContent = blog.title || 'Untitled';
     document.getElementById('modalDate').textContent = formatDate(blog.date);
     document.getElementById('modalViews').textContent = blog.views || 0;
     document.getElementById('modalLikes').textContent = blog.likes || 0;
-    document.getElementById('modalContent').innerHTML = blog.content.replace(/\n/g, '<br>');
+    document.getElementById('modalContent').innerHTML = (blog.content || '').replace(/\n/g, '<br>');
 
     // Display image if exists
     const modalImage = document.getElementById('modalImage');
     if (blog.image) {
-        modalImage.innerHTML = `<img src="${blog.image}" alt="${blog.title}">`;
+        modalImage.innerHTML = `<img src="${blog.image}" alt="${blog.title}" onerror="this.style.display='none'">`;
         modalImage.style.display = 'block';
     } else {
         modalImage.style.display = 'none';
@@ -191,10 +231,13 @@ async function likeBlog() {
 
             // Update the blog card as well
             loadBlogs(currentFilter);
+            showSuccess('Thank you for liking this post!');
+        } else {
+            throw new Error('Failed to like blog');
         }
     } catch (error) {
         console.error('Error liking blog:', error);
-        showError('Failed to like blog');
+        showError('Failed to like blog. Please try again.');
     }
 }
 
@@ -206,9 +249,12 @@ async function quickLike(blogId) {
 
         if (response.ok) {
             loadBlogs(currentFilter);
+        } else {
+            throw new Error('Failed to like blog');
         }
     } catch (error) {
         console.error('Error liking blog:', error);
+        showError('Failed to like blog. Please try again.');
     }
 }
 
@@ -220,6 +266,11 @@ async function addComment() {
 
     if (!author || !content) {
         showError('Please fill in both name and comment fields');
+        return;
+    }
+
+    if (content.length < 5) {
+        showError('Comment must be at least 5 characters long');
         return;
     }
 
@@ -245,11 +296,12 @@ async function addComment() {
 
             showSuccess('Comment added successfully!');
         } else {
-            throw new Error('Failed to add comment');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to add comment');
         }
     } catch (error) {
         console.error('Error adding comment:', error);
-        showError('Failed to add comment');
+        showError('Failed to add comment: ' + error.message);
     }
 }
 
@@ -266,82 +318,87 @@ function filterBlogs(filter) {
 }
 
 function searchBlogs() {
-    const searchTerm = document.getElementById('searchInput').value.trim();
+    const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
 
     if (searchTerm === '') {
         displayBlogs(allBlogs);
         return;
     }
 
-    const filteredBlogs = allBlogs.filter(blog =>
-        blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (blog.tags && blog.tags.some(tag =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-    );
+    const filteredBlogs = allBlogs.filter(blog => {
+        const titleMatch = blog.title && blog.title.toLowerCase().includes(searchTerm);
+        const contentMatch = blog.content && blog.content.toLowerCase().includes(searchTerm);
+        const tagsMatch = blog.tags && blog.tags.some(tag =>
+            tag.toLowerCase().includes(searchTerm)
+        );
+
+        return titleMatch || contentMatch || tagsMatch;
+    });
 
     displayBlogs(filteredBlogs);
 }
 
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+    if (!dateString) return 'Unknown date';
+
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Invalid date';
+    }
 }
 
 function showLoading(show) {
     const loading = document.getElementById('blogLoading');
-    loading.style.display = show ? 'block' : 'none';
+    if (loading) {
+        loading.style.display = show ? 'block' : 'none';
+    }
 }
 
 function showError(message) {
-    // Create or update error message
-    let errorDiv = document.getElementById('errorMessage');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'errorMessage';
-        errorDiv.className = 'error-message';
-        document.querySelector('.container').appendChild(errorDiv);
-    }
-
-    errorDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle"></i>
-        <span>${message}</span>
-        <button onclick="this.parentElement.remove()">×</button>
-    `;
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (errorDiv.parentElement) {
-            errorDiv.remove();
-        }
-    }, 5000);
+    showMessage(message, 'error');
 }
 
 function showSuccess(message) {
-    let successDiv = document.getElementById('successMessage');
-    if (!successDiv) {
-        successDiv = document.createElement('div');
-        successDiv.id = 'successMessage';
-        successDiv.className = 'success-message';
-        document.querySelector('.container').appendChild(successDiv);
-    }
+    showMessage(message, 'success');
+}
 
-    successDiv.innerHTML = `
-        <i class="fas fa-check-circle"></i>
+function showMessage(message, type) {
+    // Remove existing messages
+    const existingMessages = document.querySelectorAll('.message');
+    existingMessages.forEach(msg => msg.remove());
+
+    // Create new message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}-message`;
+
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+
+    messageDiv.innerHTML = `
+        <i class="fas ${icon}"></i>
         <span>${message}</span>
-        <button onclick="this.parentElement.remove()">×</button>
+        <button onclick="this.parentElement.remove()" class="close-btn">
+            <i class="fas fa-times"></i>
+        </button>
     `;
 
+    // Add to the page
+    const container = document.querySelector('.container') || document.body;
+    container.appendChild(messageDiv);
+
+    // Auto remove after timeout
+    const timeout = type === 'error' ? 5000 : 3000;
     setTimeout(() => {
-        if (successDiv.parentElement) {
-            successDiv.remove();
+        if (messageDiv.parentElement) {
+            messageDiv.remove();
         }
-    }, 3000);
+    }, timeout);
 }
 
 function animateBlogCards() {
@@ -374,3 +431,26 @@ document.addEventListener('keydown', (event) => {
         closeBlogModal();
     }
 });
+
+// Handle form submission for comment form
+document.addEventListener('DOMContentLoaded', function () {
+    const commentForm = document.querySelector('.comment-form');
+    if (commentForm) {
+        // Prevent form submission if enter is pressed in textarea
+        document.getElementById('commentContent')?.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                addComment();
+            }
+        });
+    }
+});
+
+// Export functions for global access
+window.filterBlogs = filterBlogs;
+window.searchBlogs = searchBlogs;
+window.openBlogModal = openBlogModal;
+window.closeBlogModal = closeBlogModal;
+window.likeBlog = likeBlog;
+window.quickLike = quickLike;
+window.addComment = addComment;
