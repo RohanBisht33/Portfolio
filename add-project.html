@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Project - Rohan Bisht</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo"><a href="/">Rohan Bisht</a></div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/projects">Projects</a></li>
+                <li><a href="/blog">Blog</a></li>
+                <li><a href="/write-blog">Write Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Add Project Header -->
+    <section class="page-header">
+        <div class="header-content">
+            <h1>Add New Project</h1>
+            <p>Showcase your latest work and achievements</p>
+        </div>
+    </section>
+
+    <!-- Project Form -->
+    <main class="form-main">
+        <div class="container">
+            <div class="form-container">
+                <form id="projectForm" class="project-form" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">
+                                <i class="fas fa-code"></i> Project Title
+                            </label>
+                            <input type="text" id="title" name="title" required placeholder="Enter your project name">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="image">
+                                <i class="fas fa-image"></i> Project Image *
+                            </label>
+                            <div class="file-upload">
+                                <input type="file" id="image" name="image" accept="image/*" required>
+                                <div class="file-upload-display">
+                                    <div id="imagePreview" class="image-preview" style="display: none;">
+                                        <img id="previewImg" src="" alt="Preview">
+                                        <button type="button" class="remove-image" onclick="removeImage()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div id="uploadPlaceholder" class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload project image or drag and drop</p>
+                                        <small>PNG, JPG, WEBP up to 5MB (Required)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="description">
+                                <i class="fas fa-align-left"></i> Project Description
+                            </label>
+                            <textarea id="description" name="description" required
+                                placeholder="Describe your project, its features, and what makes it special..."
+                                rows="6"></textarea>
+                            <div class="character-count">
+                                <span id="charCount">0</span> characters
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="technologies">
+                                <i class="fas fa-cogs"></i> Technologies Used
+                            </label>
+                            <input type="text" id="technologies" name="technologies"
+                                placeholder="e.g., JavaScript, React, Node.js, MongoDB (comma-separated)">
+                            <small>Separate technologies with commas</small>
+                        </div>
+                        <div class="form-group half">
+                            <label for="status">
+                                <i class="fas fa-tasks"></i> Project Status
+                            </label>
+                            <select id="status" name="status" required>
+                                <option value="completed">Completed</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="planning">Planning</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="githubUrl">
+                                <i class="fab fa-github"></i> GitHub URL (Optional)
+                            </label>
+                            <input type="url" id="githubUrl" name="githubUrl"
+                                placeholder="https://github.com/username/repository">
+                        </div>
+                        <div class="form-group half">
+                            <label for="liveUrl">
+                                <i class="fas fa-external-link-alt"></i> Live Demo URL (Optional)
+                            </label>
+                            <input type="url" id="liveUrl" name="liveUrl" placeholder="https://your-project-demo.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="featured" class="checkbox-label">
+                                <input type="checkbox" id="featured" name="featured">
+                                <span class="checkmark"></span>
+                                <i class="fas fa-star"></i> Mark as Featured Project
+                            </label>
+                            <small>Featured projects will be highlighted on your homepage</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="previewProject()">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-plus"></i> Add Project
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Preview Modal -->
+                <div id="previewModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-eye"></i> Project Preview</h2>
+                            <span class="close" onclick="closePreview()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div id="previewContent" class="project-preview"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button onclick="closePreview()" class="btn-secondary">Close Preview</button>
+                            <button onclick="submitFromPreview()" class="btn-primary">Add Project</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer"></div>
+
+    <script src="add-project.js"></script>
+</body>
+
+</html>
