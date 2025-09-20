@@ -9,6 +9,31 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Simple authentication
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'your_secure_admin_password_2024!';
+
+// Middleware to check admin authentication
+const checkAdminAuth = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+            error: 'Authentication required. Only the site administrator can perform this action.'
+        });
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+    // Simple token validation (you can enhance this with JWT later)
+    if (token !== ADMIN_PASSWORD) {
+        return res.status(401).json({
+            error: 'Invalid credentials. Only the site administrator can perform this action.'
+        });
+    }
+
+    next();
+};
+
 // Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -177,7 +202,24 @@ const asyncHandler = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// Blog Routes
+// Authentication route
+app.post('/api/auth/login', (req, res) => {
+    const { password } = req.body;
+
+    if (password === ADMIN_PASSWORD) {
+        res.json({
+            success: true,
+            token: ADMIN_PASSWORD,
+            message: 'Authentication successful'
+        });
+    } else {
+        res.status(401).json({
+            error: 'Invalid password'
+        });
+    }
+});
+
+// Blog Routes (READ access for everyone)
 app.get('/api/blogs', asyncHandler(async (req, res) => {
     const { featured, limit, search } = req.query;
     let query = {};
@@ -216,8 +258,9 @@ app.get('/api/blogs/:id', asyncHandler(async (req, res) => {
     res.status(200).json(blog);
 }));
 
-app.post('/api/blogs', upload.single('image'), asyncHandler(async (req, res) => {
-    console.log('Creating new blog');
+// Blog CREATE route (ADMIN ONLY)
+app.post('/api/blogs', checkAdminAuth, upload.single('image'), asyncHandler(async (req, res) => {
+    console.log('Creating new blog (admin authenticated)');
     console.log('File uploaded:', req.file ? 'Yes' : 'No');
 
     const blogData = {
@@ -240,6 +283,7 @@ app.post('/api/blogs', upload.single('image'), asyncHandler(async (req, res) => 
     res.status(201).json(savedBlog);
 }));
 
+// Blog interaction routes (PUBLIC access for likes and comments)
 app.put('/api/blogs/:id/like', asyncHandler(async (req, res) => {
     const blog = await Blog.findByIdAndUpdate(
         req.params.id,
@@ -277,7 +321,7 @@ app.post('/api/blogs/:id/comment', asyncHandler(async (req, res) => {
     res.status(200).json(savedBlog);
 }));
 
-// Project Routes
+// Project Routes (READ access for everyone)
 app.get('/api/projects', asyncHandler(async (req, res) => {
     const { featured, limit, status } = req.query;
     let query = {};
@@ -309,8 +353,9 @@ app.get('/api/projects/:id', asyncHandler(async (req, res) => {
     res.status(200).json(project);
 }));
 
-app.post('/api/projects', upload.single('image'), asyncHandler(async (req, res) => {
-    console.log('Creating new project');
+// Project CREATE route (ADMIN ONLY)
+app.post('/api/projects', checkAdminAuth, upload.single('image'), asyncHandler(async (req, res) => {
+    console.log('Creating new project (admin authenticated)');
     console.log('File uploaded:', req.file ? 'Yes' : 'No');
 
     if (!req.file) {
@@ -400,6 +445,8 @@ async function startServer() {
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log('📸 Cloudinary configured for image uploads');
+            console.log('🔐 Admin authentication enabled');
+            console.log(`🔑 Admin password: ${ADMIN_PASSWORD}`);
         });
     } catch (error) {
         console.error('Failed to start server:', error);

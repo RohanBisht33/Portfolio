@@ -1,6 +1,59 @@
 let isPublishing = false;
+let adminToken = localStorage.getItem('adminToken');
+
+// Authentication check
+function checkAuthAndRedirect() {
+    if (!adminToken) {
+        const password = prompt('This page is restricted to the site administrator. Please enter the admin password:');
+        if (!password) {
+            window.location.href = '/';
+            return false;
+        }
+
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    adminToken = data.token;
+                    localStorage.setItem('adminToken', adminToken);
+                    location.reload();
+                } else {
+                    alert('Invalid password. Access denied.');
+                    window.location.href = '/';
+                }
+            })
+            .catch(error => {
+                console.error('Authentication error:', error);
+                alert('Authentication failed. Access denied.');
+                window.location.href = '/';
+            });
+
+        return false;
+    }
+    return true;
+}
+
+// Authenticated fetch function
+function authenticatedFetch(url, options = {}) {
+    return fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${adminToken}`
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!checkAuthAndRedirect()) {
+        return;
+    }
     initializeEditor();
     loadDraft();
 });
@@ -142,7 +195,7 @@ async function publishBlog(formData) {
     publishBtn.disabled = true;
 
     try {
-        const response = await fetch('/api/blogs', {
+        const response = await authenticatedFetch('/api/blogs', {
             method: 'POST',
             body: formData
         });
@@ -163,6 +216,12 @@ async function publishBlog(formData) {
                 window.location.href = '/blog';
             }, 2000);
         } else {
+            if (response.status === 401) {
+                localStorage.removeItem('adminToken');
+                alert('Session expired. Please re-authenticate.');
+                window.location.reload();
+                return;
+            }
             throw new Error(result.error || 'Failed to publish blog');
         }
     } catch (error) {
@@ -389,6 +448,12 @@ function insertLink() {
 
         document.getElementById('charCount').textContent = textarea.value.length;
     }
+}
+
+function logout() {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('blogDraft');
+    window.location.href = '/';
 }
 
 function showError(message) {

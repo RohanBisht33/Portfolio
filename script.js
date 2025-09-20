@@ -1,42 +1,34 @@
 // Global variables
+let blogPosts = [];
+let portfolioProjects = [];
+let currentPost = null;
+let hasLoadedBefore = false;
+
+// Check if user has visited before
+if (sessionStorage.getItem('hasVisited')) {
+    hasLoadedBefore = true;
+}
 
 if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
+    history.scrollRestoration = 'manual';
 }
-window.scrollTo(0, 0); // Force always starts at top
-
-
-let blogPosts = [];
-let currentPost = null;
-let portfolioItems = [
-    {
-        title: "E-commerce Website",
-        description: "Full-stack e-commerce solution with payment integration",
-        image: "https://via.placeholder.com/400x200/667eea/ffffff?text=E-commerce+Site",
-        tech: ["HTML", "CSS", "JavaScript", "Node.js"]
-    },
-    {
-        title: "Task Management App",
-        description: "Responsive task manager with drag-and-drop functionality",
-        image: "https://via.placeholder.com/400x200/764ba2/ffffff?text=Task+Manager",
-        tech: ["JavaScript", "Local Storage", "CSS Grid"]
-    },
-    {
-        title: "Weather Dashboard",
-        description: "Real-time weather app with location-based forecasts",
-        image: "https://via.placeholder.com/400x200/f093fb/ffffff?text=Weather+App",
-        tech: ["API Integration", "JavaScript", "Responsive Design"]
-    }
-];
+window.scrollTo(0, 0);
 
 // Initialize the website
 window.addEventListener('load', function () {
-    setTimeout(() => {
-        document.getElementById('loadingScreen').style.opacity = '0';
+    // Only show loading animation for first-time visitors
+    if (!hasLoadedBefore) {
         setTimeout(() => {
-            document.getElementById('loadingScreen').style.display = 'none';
-        }, 1000);
-    }, 2500);
+            document.getElementById('loadingScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                sessionStorage.setItem('hasVisited', 'true');
+            }, 1000);
+        }, 2500);
+    } else {
+        // Hide loading screen immediately for returning users
+        document.getElementById('loadingScreen').style.display = 'none';
+    }
 
     initializePortfolio();
     initializeBlog();
@@ -44,66 +36,146 @@ window.addEventListener('load', function () {
     setupSmoothScrolling();
 });
 
-// Initialize Portfolio
-function initializePortfolio() {
+// Initialize Portfolio with real projects from API
+async function initializePortfolio() {
     const portfolioGrid = document.getElementById('portfolioGrid');
-    portfolioItems.forEach((item, index) => {
-        const portfolioItem = document.createElement('div');
-        portfolioItem.className = 'portfolio-item animate-on-scroll';
-        portfolioItem.style.animationDelay = `${index * 0.2}s`;
 
-        portfolioItem.innerHTML = `
-                    <img src="${item.image}" alt="${item.title}">
-                    <div class="portfolio-content">
-                        <h3>${item.title}</h3>
-                        <p>${item.description}</p>
-                        <div style="margin-top: 1rem;">
-                            ${item.tech.map(tech => `<span style="background: var(--gradient); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem; display: inline-block; margin-bottom: 0.5rem;">${tech}</span>`).join('')}
-                        </div>
+    try {
+        // Fetch featured projects for homepage
+        const response = await fetch('/api/projects?featured=true&limit=6');
+        if (response.ok) {
+            portfolioProjects = await response.json();
+        } else {
+            console.error('Failed to load projects');
+            portfolioProjects = [];
+        }
+
+        // If no featured projects, get the latest ones
+        if (portfolioProjects.length === 0) {
+            const latestResponse = await fetch('/api/projects?limit=6');
+            if (latestResponse.ok) {
+                portfolioProjects = await latestResponse.json();
+            }
+        }
+
+        // Display projects or show message if none exist
+        if (portfolioProjects.length === 0) {
+            portfolioGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
+                    <i class="fas fa-code" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                    <h3>No projects yet</h3>
+                    <p>Projects will appear here once they are added to the portfolio.</p>
+                </div>
+            `;
+            return;
+        }
+
+        portfolioProjects.forEach((project, index) => {
+            const portfolioItem = document.createElement('div');
+            portfolioItem.className = 'portfolio-item animate-on-scroll';
+            portfolioItem.style.animationDelay = `${index * 0.2}s`;
+
+            const truncatedDescription = project.description.length > 100
+                ? project.description.substring(0, 100) + '...'
+                : project.description;
+
+            portfolioItem.innerHTML = `
+                <img src="${project.image}" alt="${project.title}">
+                <div class="portfolio-content">
+                    <h3>${project.title}</h3>
+                    <p>${truncatedDescription}</p>
+                    <div style="margin-top: 1rem;">
+                        ${project.technologies.slice(0, 4).map(tech =>
+                `<span style="background: var(--gradient); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem; display: inline-block; margin-bottom: 0.5rem;">${tech}</span>`
+            ).join('')}
+                        ${project.technologies.length > 4 ? `<span style="color: #64748b; font-size: 0.8rem;">+${project.technologies.length - 4} more</span>` : ''}
                     </div>
-                `;
-        portfolioGrid.appendChild(portfolioItem);
-    });
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
+                        ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fab fa-github"></i> Code</a>` : ''}
+                        ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-external-link-alt"></i> Live Demo</a>` : ''}
+                        <button onclick="viewProjectDetails('${project._id}')" style="background: var(--gradient); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 15px; cursor: pointer; font-size: 0.8rem;">View Details</button>
+                    </div>
+                </div>
+            `;
+            portfolioGrid.appendChild(portfolioItem);
+        });
+    } catch (error) {
+        console.error('Error loading projects:', error);
+        portfolioGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #ef4444;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                <h3>Error loading projects</h3>
+                <p>There was an error loading the projects. Please try refreshing the page.</p>
+            </div>
+        `;
+    }
 }
 
-// Initialize Blog
-function initializeBlog() {
-    // Sample blog posts
-    blogPosts = [
-        {
-            id: 1,
-            title: "Getting Started with Modern JavaScript",
-            content: "JavaScript has evolved tremendously over the years. In this post, I'll cover the essential ES6+ features that every developer should know...",
-            date: new Date().toLocaleDateString(),
-            featured: true,
-            likes: 15,
-            comments: []
-        },
-        {
-            id: 2,
-            title: "Building Responsive Web Applications",
-            content: "Creating responsive designs is crucial in today's multi-device world. Here are the best practices I've learned...",
-            date: new Date(Date.now() - 86400000).toLocaleDateString(),
-            featured: false,
-            likes: 8,
-            comments: []
-        },
-        {
-            id: 3,
-            title: "The Future of Web Development",
-            content: "Web development is constantly evolving. Let's explore the trends that will shape our industry in the coming years...",
-            date: new Date(Date.now() - 172800000).toLocaleDateString(),
-            featured: true,
-            likes: 23,
-            comments: []
+// Initialize Blog with real posts from API
+async function initializeBlog() {
+    try {
+        // Fetch featured blog posts for homepage
+        const response = await fetch('/api/blogs?featured=true&limit=6');
+        if (response.ok) {
+            blogPosts = await response.json();
+        } else {
+            console.error('Failed to load blog posts');
+            blogPosts = [];
         }
-    ];
-    renderBlogPosts();
+
+        // If no featured posts, get the latest ones
+        if (blogPosts.length === 0) {
+            const latestResponse = await fetch('/api/blogs?limit=6');
+            if (latestResponse.ok) {
+                blogPosts = await latestResponse.json();
+            }
+        }
+
+        renderBlogPosts();
+    } catch (error) {
+        console.error('Error loading blog posts:', error);
+        const blogGrid = document.getElementById('blogGrid');
+        blogGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #ef4444;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                <h3>Error loading blog posts</h3>
+                <p>There was an error loading the blog posts. Please try refreshing the page.</p>
+            </div>
+        `;
+    }
+}
+
+// View project details function
+async function viewProjectDetails(projectId) {
+    try {
+        const response = await fetch(`/api/projects/${projectId}`);
+        if (response.ok) {
+            const project = await response.json();
+
+            // Create a simple modal or redirect to projects page
+            alert(`${project.title}\n\n${project.description}\n\nTechnologies: ${project.technologies.join(', ')}\n\nStatus: ${project.status}`);
+        }
+    } catch (error) {
+        console.error('Error loading project details:', error);
+        alert('Error loading project details. Please try again.');
+    }
 }
 
 // Render blog posts
 function renderBlogPosts(posts = blogPosts) {
     const blogGrid = document.getElementById('blogGrid');
+
+    if (posts.length === 0) {
+        blogGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
+                <i class="fas fa-blog" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                <h3>No blog posts yet</h3>
+                <p>Blog posts will appear here once they are published.</p>
+            </div>
+        `;
+        return;
+    }
+
     blogGrid.innerHTML = '';
 
     posts.forEach((post, index) => {
@@ -111,23 +183,29 @@ function renderBlogPosts(posts = blogPosts) {
         blogPost.className = 'blog-post animate-on-scroll';
         blogPost.style.animationDelay = `${index * 0.1}s`;
 
+        const truncatedContent = post.content && post.content.length > 150
+            ? post.content.substring(0, 150) + '...'
+            : post.content || 'No content available';
+
+        const formattedDate = post.date ? new Date(post.date).toLocaleDateString() : 'Date not available';
+
         blogPost.innerHTML = `
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span>${post.date}</span>
-                            <div class="blog-stats">
-                                <span><i class="fas fa-heart"></i> ${post.likes}</span>
-                                <span><i class="fas fa-comment"></i> ${post.comments.length}</span>
-                            </div>
-                        </div>
-                        <h3>${post.title}</h3>
-                        <p>${post.content.substring(0, 150)}...</p>
-                        ${post.featured ? '<span style="background: var(--gradient-accent); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Featured</span>' : ''}
-                        <div style="margin-top: 1rem;">
-                            <button class="blog-btn" onclick="openPost(${post.id})">Read More</button>
-                        </div>
+            <div class="blog-content">
+                <div class="blog-meta">
+                    <span>${formattedDate}</span>
+                    <div class="blog-stats">
+                        <span><i class="fas fa-heart"></i> ${post.likes || 0}</span>
+                        <span><i class="fas fa-comment"></i> ${post.comments ? post.comments.length : 0}</span>
                     </div>
-                `;
+                </div>
+                <h3>${post.title || 'Untitled'}</h3>
+                <p>${truncatedContent}</p>
+                ${post.featured ? '<span style="background: var(--gradient-accent); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem;">Featured</span>' : ''}
+                <div style="margin-top: 1rem;">
+                    <button class="blog-btn" onclick="viewBlogPost('${post._id}')">Read More</button>
+                </div>
+            </div>
+        `;
         blogGrid.appendChild(blogPost);
     });
 
@@ -135,128 +213,78 @@ function renderBlogPosts(posts = blogPosts) {
     setupScrollAnimations();
 }
 
-// Blog filter functions
-function showAllPosts() {
-    renderBlogPosts();
+// View blog post function
+async function viewBlogPost(postId) {
+    try {
+        const response = await fetch(`/api/blogs/${postId}`);
+        if (response.ok) {
+            const post = await response.json();
+
+            // Simple alert for now - you can enhance this with a proper modal
+            const content = post.content.length > 300
+                ? post.content.substring(0, 300) + '...\n\n[Read full post on blog page]'
+                : post.content;
+
+            alert(`${post.title}\n\nBy: ${post.author || 'Rohan Bisht'}\nDate: ${new Date(post.date).toLocaleDateString()}\nLikes: ${post.likes || 0}\n\n${content}`);
+        }
+    } catch (error) {
+        console.error('Error loading blog post:', error);
+        alert('Error loading blog post. Please try again.');
+    }
 }
 
-function showFeaturedPosts() {
-    const featured = blogPosts.filter(post => post.featured);
-    renderBlogPosts(featured);
+// Blog filter functions (updated to work with API)
+async function showAllPosts() {
+    try {
+        const response = await fetch('/api/blogs?limit=6');
+        if (response.ok) {
+            const posts = await response.json();
+            renderBlogPosts(posts);
+        }
+    } catch (error) {
+        console.error('Error loading all posts:', error);
+    }
 }
 
-function showLatestPosts() {
-    const latest = [...blogPosts].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
-    renderBlogPosts(latest);
+async function showFeaturedPosts() {
+    try {
+        const response = await fetch('/api/blogs?featured=true&limit=6');
+        if (response.ok) {
+            const posts = await response.json();
+            renderBlogPosts(posts);
+        }
+    } catch (error) {
+        console.error('Error loading featured posts:', error);
+    }
 }
 
-// Modal functions
+async function showLatestPosts() {
+    try {
+        const response = await fetch('/api/blogs?limit=3');
+        if (response.ok) {
+            const posts = await response.json();
+            renderBlogPosts(posts);
+        }
+    } catch (error) {
+        console.error('Error loading latest posts:', error);
+    }
+}
+
+// Keep existing modal and animation functions
 function openCreatePostModal() {
-    document.getElementById('createPostModal').style.display = 'block';
+    alert('Only the site administrator can create posts. Please visit the Write Blog page if you are the admin.');
 }
 
 function closeCreatePostModal() {
-    document.getElementById('createPostModal').style.display = 'none';
-    document.getElementById('createPostForm').reset();
+    // Not needed for read-only access
 }
 
 function openPost(postId) {
-    const post = blogPosts.find(p => p.id === postId);
-    if (!post) return;
-
-    currentPost = post;
-    document.getElementById('viewPostTitle').textContent = post.title;
-    document.getElementById('viewPostDate').textContent = post.date;
-    document.getElementById('viewPostLikes').textContent = post.likes;
-    document.getElementById('viewPostComments').textContent = post.comments.length;
-    document.getElementById('viewPostContent').innerHTML = post.content.replace(/\n/g, '<br>');
-
-    renderComments(post.comments);
-    document.getElementById('viewPostModal').style.display = 'block';
+    viewBlogPost(postId);
 }
 
 function closeViewPostModal() {
-    document.getElementById('viewPostModal').style.display = 'none';
-    currentPost = null;
-}
-
-// Create new post
-document.getElementById('createPostForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const title = document.getElementById('postTitle').value;
-    const content = document.getElementById('postContent').value;
-    const featured = document.getElementById('postFeatured').checked;
-
-    const newPost = {
-        id: blogPosts.length + 1,
-        title,
-        content,
-        date: new Date().toLocaleDateString(),
-        featured,
-        likes: 0,
-        comments: []
-    };
-
-    blogPosts.unshift(newPost);
-    renderBlogPosts();
-    closeCreatePostModal();
-});
-
-// Like functionality
-function toggleLike() {
-    if (!currentPost) return;
-
-    currentPost.likes++;
-    document.getElementById('viewPostLikes').textContent = currentPost.likes;
-
-    // Update the blog grid
-    renderBlogPosts();
-}
-
-// Comment functionality
-function addComment() {
-    if (!currentPost) return;
-
-    const author = document.getElementById('commentAuthor').value;
-    const text = document.getElementById('commentText').value;
-
-    if (!author || !text) return;
-
-    const comment = {
-        author,
-        text,
-        date: new Date().toLocaleDateString()
-    };
-
-    currentPost.comments.push(comment);
-    renderComments(currentPost.comments);
-    document.getElementById('viewPostComments').textContent = currentPost.comments.length;
-
-    // Clear form
-    document.getElementById('commentAuthor').value = '';
-    document.getElementById('commentText').value = '';
-
-    // Update the blog grid
-    renderBlogPosts();
-}
-
-function renderComments(comments) {
-    const container = document.getElementById('commentsContainer');
-    container.innerHTML = '';
-
-    comments.forEach(comment => {
-        const commentDiv = document.createElement('div');
-        commentDiv.className = 'comment';
-        commentDiv.innerHTML = `
-                    <div class="comment-author">
-                        ${comment.author}
-                        <span class="comment-date">${comment.date}</span>
-                    </div>
-                    <p>${comment.text}</p>
-                `;
-        container.appendChild(commentDiv);
-    });
+    // Not needed for simplified view
 }
 
 // Scroll animations
@@ -297,17 +325,9 @@ function setupSmoothScrolling() {
     });
 }
 
-// Close modals when clicking outside
+// Keep existing visual effects
 window.addEventListener('click', function (event) {
-    const createModal = document.getElementById('createPostModal');
-    const viewModal = document.getElementById('viewPostModal');
-
-    if (event.target === createModal) {
-        closeCreatePostModal();
-    }
-    if (event.target === viewModal) {
-        closeViewPostModal();
-    }
+    // Modal handling removed for read-only access
 });
 
 // Parallax effect for hero section
@@ -354,22 +374,15 @@ function typeWriter(element, text, speed = 50) {
     type();
 }
 
-// Initialize typewriter effect after loading
-setTimeout(() => {
-    const heroSubtitle = document.querySelector('.hero-content p');
-    if (heroSubtitle) {
-        const originalText = heroSubtitle.textContent;
-        typeWriter(heroSubtitle, originalText, 100);
-    }
-}, 4000);
-
-// Add search functionality for blog posts
-function searchPosts(query) {
-    const filtered = blogPosts.filter(post =>
-        post.title.toLowerCase().includes(query.toLowerCase()) ||
-        post.content.toLowerCase().includes(query.toLowerCase())
-    );
-    renderBlogPosts(filtered);
+// Initialize typewriter effect after loading (only for first-time visitors)
+if (!hasLoadedBefore) {
+    setTimeout(() => {
+        const heroSubtitle = document.querySelector('.hero-content p');
+        if (heroSubtitle) {
+            const originalText = heroSubtitle.textContent;
+            typeWriter(heroSubtitle, originalText, 100);
+        }
+    }, 4000);
 }
 
 // Add dynamic greeting based on time
@@ -382,15 +395,20 @@ function updateGreeting() {
     else greeting = "Good Evening";
 
     const heroTitle = document.querySelector('.hero-content h1');
-    if (heroTitle && !heroTitle.textContent.includes('Your Name')) {
-        heroTitle.innerHTML = `${greeting},<br>I'm Your Name`;
+    if (heroTitle && !heroTitle.textContent.includes('Rohan Bisht')) {
+        heroTitle.innerHTML = `${greeting},<br>I'm Rohan Bisht`;
     }
 }
 
-setTimeout(updateGreeting, 5000);
-// Create floating particles
+if (!hasLoadedBefore) {
+    setTimeout(updateGreeting, 5000);
+}
+
+// Create floating particles (only for first-time visitors)
 function createParticles() {
     const particles = document.getElementById('particles');
+    if (!particles) return;
+
     for (let i = 0; i < 50; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
@@ -401,11 +419,15 @@ function createParticles() {
     }
 }
 
-// Initialize particles after loading
-setTimeout(createParticles, 3000);
+// Initialize particles after loading (only for first-time visitors)
+if (!hasLoadedBefore) {
+    setTimeout(createParticles, 3000);
+}
 
-// Add morphing shapes to sections
+// Add morphing shapes to sections (only for first-time visitors)
 function addMorphingShapes() {
+    if (hasLoadedBefore) return;
+
     const sections = document.querySelectorAll('section');
     sections.forEach(section => {
         for (let i = 0; i < 2; i++) {
@@ -420,4 +442,6 @@ function addMorphingShapes() {
     });
 }
 
-setTimeout(addMorphingShapes, 4000);
+if (!hasLoadedBefore) {
+    setTimeout(addMorphingShapes, 4000);
+}

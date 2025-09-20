@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name - Portfolio & Blog</title>
+    <title>Rohan Bisht - Portfolio & Blog</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -18,6 +18,7 @@
             <div class="loading-spinner"></div>
         </div>
     </div>
+
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
@@ -29,11 +30,11 @@
                 <li><a href="projects.html">Projects</a></li>
                 <li><a href="blog.html">Blog</a></li>
                 <li><a href="write-blog.html">Write Blog</a></li>
-
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </div>
     </nav>
+
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-content">
@@ -42,75 +43,108 @@
             <a href="#portfolio" class="cta-button">View My Work</a>
         </div>
     </section>
+
     <!-- Portfolio Section -->
     <section id="portfolio">
         <h2 class="section-title animate-on-scroll">My Portfolio</h2>
         <div class="portfolio-grid" id="portfolioGrid"></div>
     </section>
+
     <!-- Skills Section -->
     <section id="skills">
         <h2 class="section-title animate-on-scroll">Skills & Expertise</h2>
         <div class="skills-container animate-on-scroll">
             <div class="skill-item">
                 <div class="skill-icon"><i class="fab fa-js-square"></i></div>
-                <h3>JavaScript</h3>
-                <p>Modern ES6+ JavaScript, DOM manipulation, and async programming</p>
+                <h3>JavaScript & TypeScript</h3>
+                <p>Modern ES6+ JavaScript, TypeScript, async programming, and advanced JavaScript concepts for building
+                    dynamic web applications</p>
             </div>
             <div class="skill-item">
-                <div class="skill-icon"><i class="fab fa-html5"></i></div>
-                <h3>HTML & CSS</h3>
-                <p>Semantic HTML5, CSS3, Flexbox, Grid, and responsive design</p>
+                <div class="skill-icon"><i class="fab fa-react"></i></div>
+                <h3>Frontend Frameworks</h3>
+                <p>React.js, Vue.js, Angular with state management (Redux, Vuex), component architecture, and modern
+                    build tools</p>
             </div>
             <div class="skill-item">
                 <div class="skill-icon"><i class="fab fa-node-js"></i></div>
-                <h3>Node.js</h3>
-                <p>Backend development with Express.js and REST APIs</p>
+                <h3>Backend Development</h3>
+                <p>Node.js, Express.js, REST APIs, GraphQL, authentication, server-side rendering, and microservices
+                    architecture</p>
             </div>
             <div class="skill-item">
                 <div class="skill-icon"><i class="fas fa-database"></i></div>
-                <h3>Databases</h3>
-                <p>MongoDB, MySQL, and database design principles</p>
+                <h3>Database Management</h3>
+                <p>MongoDB, MySQL, PostgreSQL, database design, query optimization, data modeling, and database
+                    administration</p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fab fa-aws"></i></div>
+                <h3>Cloud & DevOps</h3>
+                <p>AWS, Docker, Kubernetes, CI/CD pipelines, cloud deployment, monitoring, and infrastructure as code
+                </p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fas fa-mobile-alt"></i></div>
+                <h3>Mobile Development</h3>
+                <p>React Native, Flutter, responsive web design, Progressive Web Apps (PWA), and cross-platform
+                    development</p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fab fa-python"></i></div>
+                <h3>Python & Data Science</h3>
+                <p>Python programming, Django, Flask, data analysis with pandas, machine learning basics, and automation
+                    scripts</p>
+            </div>
+            <div class="skill-item">
+                <div class="skill-icon"><i class="fas fa-code-branch"></i></div>
+                <h3>Version Control & Tools</h3>
+                <p>Git, GitHub, GitLab, Agile methodologies, project management, code review, and collaborative
+                    development</p>
             </div>
         </div>
     </section>
+
     <!-- Blog Section -->
     <section id="blog">
-        <h2 class="section-title animate-on-scroll">My Blog</h2>
+        <h2 class="section-title animate-on-scroll">Latest Blog Posts</h2>
         <div class="blog-controls animate-on-scroll">
             <div>
                 <button class="blog-btn" onclick="showAllPosts()">All Posts</button>
                 <button class="blog-btn" onclick="showFeaturedPosts()">Featured</button>
                 <button class="blog-btn" onclick="showLatestPosts()">Latest</button>
             </div>
-            <a href="write-blog.html" class="blog-btn"><i class="fas fa-plus"></i> New Post</a>
-
+            <a href="blog.html" class="blog-btn">
+                <i class="fas fa-book-open"></i> View All Posts
+            </a>
         </div>
         <div class="blog-grid" id="blogGrid"></div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="blog.html" class="cta-button">View All Blog Posts</a>
+        </div>
     </section>
+
     <!-- Contact Section -->
     <section id="contact">
         <h2 class="section-title animate-on-scroll">Get In Touch</h2>
         <div class="animate-on-scroll" style="text-align: center;">
             <p style="font-size: 1.2rem; margin-bottom: 2rem;">Let's work together on something amazing!</p>
             <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-                <a href="bishtrohan33@gmail.com" class="cta-button"
+                <a href="mailto:bishtrohan33@gmail.com" class="cta-button"
                     style="background: var(--gradient); color: white;">
                     <i class="fas fa-envelope"></i> Email Me
                 </a>
-                <a href="https://www.linkedin.com/in/rohan-bisht-0735771a1/" class="cta-button"
+                <a href="https://www.linkedin.com/in/rohan-bisht-0735771a1/" target="_blank" class="cta-button"
                     style="background: var(--gradient); color: white;">
                     <i class="fab fa-linkedin"></i> LinkedIn
                 </a>
-                <a href="https://github.com/RohanBisht33" class="cta-button"
+                <a href="https://github.com/RohanBisht33" target="_blank" class="cta-button"
                     style="background: var(--gradient); color: white;">
                     <i class="fab fa-github"></i> GitHub
                 </a>
             </div>
         </div>
     </section>
-    <!-- Modals for blog -->
-    <div id="createPostModal" class="modal">...</div>
-    <div id="viewPostModal" class="modal">...</div>
 
     <!-- Particle background -->
     <div class="particles" id="particles"></div>

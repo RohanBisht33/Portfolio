@@ -11,6 +11,9 @@
 
 <body>
     <!-- Navigation -->
+    <!-- Add this to the navigation section in write-blog.html and add-project.html -->
+    <!-- Replace the existing nav section with this updated version -->
+    
     <nav>
         <div class="nav-container">
             <div class="logo"><a href="/">Rohan Bisht</a></div>
@@ -20,6 +23,15 @@
                 <li><a href="/blog">Blog</a></li>
                 <li><a href="/write-blog" class="active">Write Blog</a></li>
             </ul>
+            <!-- Admin controls -->
+            <div class="admin-controls" style="display: flex; gap: 1rem; align-items: center;">
+                <span style="color: var(--primary); font-size: 0.9rem;">
+                    <i class="fas fa-user-shield"></i> Admin
+                </span>
+                <button onclick="logout()" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </div>
     </nav>
 
