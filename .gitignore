@@ -6,3 +6,4 @@ uploads/*.jpeg
 uploads/*.webp
 *.log
 .DS_Store
+.pass
